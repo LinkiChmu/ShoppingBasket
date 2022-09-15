@@ -5,14 +5,13 @@ import java.util.*;
 public class Basket {
     private final String[] products;
     private final double[] prices;
-    private static Map<Integer, Integer> purchase;
+    private Map<Integer, Integer> purchase = new HashMap<>();
     private static File textFile;
 
     public Basket(String[] products, double[] prices) {
         this.products = products;
         this.prices = prices;
         textFile = new File("basket.txt");
-        purchase = new HashMap<>();
     }
 
     /**
@@ -39,23 +38,24 @@ public class Basket {
     /**
      * Restore the shopping list from a text file in which it was previously saved.
      */
-    protected static void loadFromTxtFile() {
+    protected static Basket loadFromTxtFile(Basket basket) {
         if (textFile.exists()) {
             try (BufferedReader buf = new BufferedReader(new FileReader(textFile))) {
                 String s;
                 while ((s = buf.readLine()) != null) {
                     String[] read = s.split("(?U)\\W+");
-                    purchase.put(Integer.parseInt(read[0]), Integer.parseInt(read[1]));
+                    basket.purchase.put(Integer.parseInt(read[0]), Integer.parseInt(read[1]));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        return basket;
     }
 
     /**
      * Add a certain quantity of product to the shopping cart.
-     *
+      *
      * @param productNum
      * @param amount
      * @throws IOException

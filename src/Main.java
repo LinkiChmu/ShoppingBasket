@@ -14,7 +14,7 @@ public class Main {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
         Basket basket = new Basket(products, prices);
-        Basket.loadFromTxtFile();
+        Basket.loadFromTxtFile(basket);
 
         StringBuilder sb1 = new StringBuilder("Список товаров для покупки: \n");
         DecimalFormat dfm = new DecimalFormat("0.00");
