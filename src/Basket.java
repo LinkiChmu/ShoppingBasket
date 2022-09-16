@@ -3,11 +3,10 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 public class Basket implements Serializable {
-    private final String[] products;
-    private final double[] prices;
+    private String[] products;
+    private double[] prices;
     private Map<Integer, Integer> purchase = new LinkedHashMap<>();
     private static transient File textFile;
-    private static transient File binFile;
     private static final long serialVersionUID = 29L;
 
 
@@ -15,15 +14,14 @@ public class Basket implements Serializable {
         this.products = products;
         this.prices = prices;
         textFile = new File("basket.txt");
-        binFile = new File("basket.bin");
     }
 
     /**
      * Method stores the object Basket into the binary file by serialization.
      */
-    protected void saveBin() {
+    protected void saveBin(File file) {
         try(ObjectOutputStream objOut = new ObjectOutputStream(
-                new DataOutputStream(new FileOutputStream(binFile)))) {
+                new DataOutputStream(new FileOutputStream(file)))) {
             objOut.writeObject(this);
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -48,6 +46,22 @@ public class Basket implements Serializable {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    /**
+     * Restore object Basket from the binary file by deserialization.
+     * @param file
+     * @return
+     */
+    protected static Basket loadFromBinFile(File file) {
+        Basket basket = null;
+        try (ObjectInputStream objIn = new ObjectInputStream(
+                new DataInputStream(new FileInputStream(file)))) {
+            basket = (Basket) objIn.readObject();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return basket;
     }
 
     /**
@@ -82,7 +96,6 @@ public class Basket implements Serializable {
         } else {
             purchase.put(productNum, amount);
         }
-  //      saveTxt();
     }
 
     /**
