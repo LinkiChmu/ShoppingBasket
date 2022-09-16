@@ -34,7 +34,7 @@ public class Basket implements Serializable {
      *
      * @throws IOException
      */
-    private void saveTxt() throws IOException {
+    protected void saveTxt() throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(textFile))) {
             purchase.entrySet().stream()
                     .map(entry -> entry.toString() + "\n")
@@ -82,7 +82,7 @@ public class Basket implements Serializable {
         } else {
             purchase.put(productNum, amount);
         }
-        saveTxt();
+  //      saveTxt();
     }
 
     /**
