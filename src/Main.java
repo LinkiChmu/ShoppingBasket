@@ -1,20 +1,25 @@
-import java.io.IOException;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 
 /**
- * 1. Create an object of a product bin, restore a shopping list from the text file
+ * 1. Create a new object of a shopping cart or restore it from the text file
  * 2. Show a list of products available for purchase;
  * 3. Scan product number and its quantity from console input;
  * 4. Store the purchase;
  * 5. Display all purchases, their total cost and quantity
  */
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
-        Basket basket = new Basket(products, prices);
-        Basket.loadFromTxtFile(basket);
+        File textFile = new File("basket.txt");
+        Basket basket;
+        if (textFile.exists()) {
+            basket = Basket.loadFromTxtFile(textFile);
+        } else {
+            basket = new Basket(products, prices);
+        }
 
         StringBuilder sb1 = new StringBuilder("Список товаров для покупки: \n");
         DecimalFormat dfm = new DecimalFormat("0.00");
@@ -53,9 +58,10 @@ public class Main {
                 System.out.println("Проверьте введенные числа: номер товара");
                 continue;
             }
-
             basket.addToCart(productNum, productCount);
         }
+
+        basket.saveTxt(textFile);
 
         basket.printCart();
     }
