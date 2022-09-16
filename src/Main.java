@@ -56,7 +56,7 @@ public class Main {
 
             basket.addToCart(productNum, productCount);
         }
-
+        basket.saveBin();
         basket.printCart();
     }
 }

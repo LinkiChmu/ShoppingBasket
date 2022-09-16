@@ -2,18 +2,33 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class Basket {
+public class Basket implements Serializable {
     private final String[] products;
     private final double[] prices;
     private Map<Integer, Integer> purchase = new LinkedHashMap<>();
-    private static File textFile;
+    private static transient File textFile;
+    private static transient File binFile;
+    private static final long serialVersionUID = 29L;
+
 
     public Basket(String[] products, double[] prices) {
         this.products = products;
         this.prices = prices;
         textFile = new File("basket.txt");
+        binFile = new File("basket.bin");
     }
 
+    /**
+     * Method stores the object Basket into the binary file by serialization.
+     */
+    protected void saveBin() {
+        try(ObjectOutputStream objOut = new ObjectOutputStream(
+                new DataOutputStream(new FileOutputStream(binFile)))) {
+            objOut.writeObject(this);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
     /**
      * Method writes the purchases to the text file.
      *
