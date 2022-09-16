@@ -5,7 +5,7 @@ import java.util.*;
 public class Basket {
     private final String[] products;
     private final double[] prices;
-    private Map<Integer, Integer> purchase = new HashMap<>();
+    private Map<Integer, Integer> purchase = new LinkedHashMap<>();
     private static File textFile;
 
     public Basket(String[] products, double[] prices) {
