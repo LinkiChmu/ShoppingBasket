@@ -6,34 +6,35 @@ public class Basket implements Serializable {
     private String[] products;
     private double[] prices;
     private Map<Integer, Integer> purchase = new LinkedHashMap<>();
-    private static transient File textFile;
     private static final long serialVersionUID = 29L;
-
 
     public Basket(String[] products, double[] prices) {
         this.products = products;
         this.prices = prices;
-        textFile = new File("basket.txt");
     }
 
     /**
-     * Method stores the object Basket into the binary file by serialization.
+     * Method writes all the Basket object's fields to the text file.
      */
-    protected void saveBin(File file) {
-        try(ObjectOutputStream objOut = new ObjectOutputStream(
-                new DataOutputStream(new FileOutputStream(file)))) {
-            objOut.writeObject(this);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-    /**
-     * Method writes the purchases to the text file.
-     *
-     * @throws IOException
-     */
-    protected void saveTxt() throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(textFile))) {
+    public void saveTxt(File file) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+            for (String product : products) {
+                bw.write(product + " ");
+            }
+            bw.write("\n");
+
+            Arrays.stream(prices)
+                    .boxed()
+                    .map(price -> price + " ")
+                    .forEach(str -> {
+                        try {
+                            bw.write(str);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            bw.write("\n");
+
             purchase.entrySet().stream()
                     .map(entry -> entry.toString() + "\n")
                     .forEach(str -> {
@@ -49,9 +50,19 @@ public class Basket implements Serializable {
     }
 
     /**
+     * Method stores the object Basket into the binary file by serialization.
+     */
+    protected void saveBin(File file) {
+        try (ObjectOutputStream objOut = new ObjectOutputStream(
+                new DataOutputStream(new FileOutputStream(file)))) {
+            objOut.writeObject(this);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
      * Restore object Basket from the binary file by deserialization.
-     * @param file
-     * @return
      */
     protected static Basket loadFromBinFile(File file) {
         Basket basket = null;
@@ -67,29 +78,36 @@ public class Basket implements Serializable {
     /**
      * Restore the shopping list from a text file in which it was previously saved.
      */
-    protected static Basket loadFromTxtFile(Basket basket) {
-        if (textFile.exists()) {
-            try (BufferedReader buf = new BufferedReader(new FileReader(textFile))) {
-                String s;
-                while ((s = buf.readLine()) != null) {
-                    String[] read = s.split("(?U)\\W+");
-                    basket.purchase.put(Integer.parseInt(read[0]), Integer.parseInt(read[1]));
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+    public static Basket loadFromTxtFile(File file) {
+        Basket basket = null;
+        // read the products array
+        try (BufferedReader buf = new BufferedReader(new FileReader(file))) {
+            String str = buf.readLine();
+            String[] readProducts = str.split("(?U)\\W+");
+            // make a new object
+            basket = new Basket(readProducts, new double[readProducts.length]);
+            // read the prices array
+            String[] readPrices = buf.readLine().split(" ");
+            for (int i = 0; i < readPrices.length; i++) {
+                basket.prices[i] = Double.parseDouble(readPrices[i]);
             }
+            // read the map of purchases
+            String s;
+            while ((s = buf.readLine()) != null) {
+                String[] read = s.split("(?U)\\W+");
+                basket.purchase.put(Integer.parseInt(read[0]), Integer.parseInt(read[1]));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return basket;
     }
 
     /**
-     * Add a certain quantity of product to the shopping cart.
-      *
-     * @param productNum
-     * @param amount
-     * @throws IOException
+     * Add a certain quantity of product to the cart;
+     * if user adds the same product to the cart several times, it must be summed up.
      */
-    public void addToCart(int productNum, int amount) throws IOException {
+    public void addToCart(int productNum, int amount) {
         if (purchase.containsKey(productNum)) {
             int quantity = purchase.get(productNum) + amount;
             purchase.put(productNum, quantity);

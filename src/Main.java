@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 
@@ -11,17 +10,18 @@ import java.util.Scanner;
  * 5. Display all purchases, their total cost and quantity
  */
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
+
+  //      File txtFile = new File("basket.txt");
         File binFile = new File("basket.bin");
-        Basket basket = null;
+        Basket basket;
         if (binFile.exists()) {
             basket = Basket.loadFromBinFile(binFile);
         } else {
             basket = new Basket(products, prices);
         }
-
 
         StringBuilder sb1 = new StringBuilder("Список товаров для покупки: \n");
         DecimalFormat dfm = new DecimalFormat("0.00");
@@ -62,6 +62,8 @@ public class Main {
             }
             basket.addToCart(productNum, productCount);
         }
+
+   //     basket.saveTxt(txtFile);
         basket.saveBin(binFile);
 
         basket.printCart();
