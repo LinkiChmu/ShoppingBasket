@@ -3,7 +3,7 @@ import java.text.DecimalFormat;
 import java.util.Scanner;
 
 /**
- * 1. Create a new object of a shopping cart or restore it from the text file
+ * 1. Create an object of a product bin or restore it from the binary file
  * 2. Show a list of products available for purchase;
  * 3. Scan product number and its quantity from console input;
  * 4. Store the purchase;
@@ -13,10 +13,12 @@ public class Main {
     public static void main(String[] args) {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
-        File textFile = new File("basket.txt");
+
+  //      File txtFile = new File("basket.txt");
+        File binFile = new File("basket.bin");
         Basket basket;
-        if (textFile.exists()) {
-            basket = Basket.loadFromTxtFile(textFile);
+        if (binFile.exists()) {
+            basket = Basket.loadFromBinFile(binFile);
         } else {
             basket = new Basket(products, prices);
         }
@@ -61,7 +63,8 @@ public class Main {
             basket.addToCart(productNum, productCount);
         }
 
-        basket.saveTxt(textFile);
+   //     basket.saveTxt(txtFile);
+        basket.saveBin(binFile);
 
         basket.printCart();
     }

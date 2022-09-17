@@ -2,10 +2,11 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class Basket {
+public class Basket implements Serializable {
     private String[] products;
     private double[] prices;
     private Map<Integer, Integer> purchase = new LinkedHashMap<>();
+    private static final long serialVersionUID = 29L;
 
     public Basket(String[] products, double[] prices) {
         this.products = products;
@@ -15,7 +16,7 @@ public class Basket {
     /**
      * Method writes all the Basket object's fields to the text file.
      */
-    public void saveTxt(File file) {
+    public void saveTxt(File file) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             for (String product : products) {
                 bw.write(product + " ");
@@ -49,7 +50,33 @@ public class Basket {
     }
 
     /**
-     * Restore the shopping cart from a text file in which it was previously saved.
+     * Method stores the object Basket into the binary file by serialization.
+     */
+    protected void saveBin(File file) {
+        try (ObjectOutputStream objOut = new ObjectOutputStream(
+                new DataOutputStream(new FileOutputStream(file)))) {
+            objOut.writeObject(this);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Restore object Basket from the binary file by deserialization.
+     */
+    protected static Basket loadFromBinFile(File file) {
+        Basket basket = null;
+        try (ObjectInputStream objIn = new ObjectInputStream(
+                new DataInputStream(new FileInputStream(file)))) {
+            basket = (Basket) objIn.readObject();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return basket;
+    }
+
+    /**
+     * Restore the shopping list from a text file in which it was previously saved.
      */
     public static Basket loadFromTxtFile(File file) {
         Basket basket = null;
