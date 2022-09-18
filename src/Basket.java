@@ -62,7 +62,8 @@ public class Basket implements Serializable {
     }
 
     /**
-     * Restore object Basket from the binary file by deserialization.
+     * Restores object Basket from the binary file by deserialization;
+     * displays the restored shopping cart.
      */
     protected static Basket loadFromBinFile(File file) {
         Basket basket = null;
@@ -72,11 +73,14 @@ public class Basket implements Serializable {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+        basket.printCart();
+        System.out.println();
         return basket;
     }
 
     /**
-     * Restore the shopping list from a text file in which it was previously saved.
+     * Restores the shopping list from a text file;
+     * displays the restored cart.
      */
     public static Basket loadFromTxtFile(File file) {
         Basket basket = null;
@@ -100,11 +104,13 @@ public class Basket implements Serializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        basket.printCart();
+        System.out.println();
         return basket;
     }
 
     /**
-     * Add a certain quantity of product to the cart;
+     * Adds a certain quantity of product to the cart;
      * if user adds the same product to the cart several times, it must be summed up.
      */
     public void addToCart(int productNum, int amount) {
@@ -117,7 +123,7 @@ public class Basket implements Serializable {
     }
 
     /**
-     * Display all purchases, their total cost and quantity (currency decimal format: 0.00).
+     * Displays all purchases, their total cost and quantity (currency decimal format: 0.00).
      */
     public void printCart() {
         StringBuilder sb = new StringBuilder("Ваша корзина:\n");
