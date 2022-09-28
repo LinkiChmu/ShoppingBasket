@@ -14,6 +14,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
+        Basket basket;
 
         // load from text file
 //        File txtFile = new File("basket.txt");
@@ -26,7 +27,6 @@ public class Main {
 
         // load from binary file
         File binFile = new File("basket.bin");
-        Basket basket;
         if (binFile.exists()) {
             basket = Basket.loadFromBinFile(binFile);
         } else {
@@ -73,9 +73,9 @@ public class Main {
             }
             basket.addToCart(productNum, productCount);
         }
-
-       // basket.saveTxt(txtFile);
-        basket.saveBin(binFile);
+        //basket.saveTxt(new File("basket.txt"));
+        //basket.saveBin(new File("basket.bin"));
+        basket.saveJson(new File("basket.json"));
 
         ClientLog.exportAsCSV(new File("log.csv"));
 

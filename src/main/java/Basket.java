@@ -1,17 +1,36 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.*;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Basket implements Serializable {
     private String[] products;
     private double[] prices;
     private Map<Integer, Integer> purchase = new LinkedHashMap<>();
-    private ClientLog clientLog = new ClientLog();
     private static final long serialVersionUID = 29L;
+
+    public Basket() {}
 
     public Basket(String[] products, double[] prices) {
         this.products = products;
         this.prices = prices;
+    }
+
+    /**
+     * Method writes all the Basket object's fields to the JSON file.
+     */
+    public void saveJson(File file) {
+        try (FileWriter writer = new FileWriter(file)) {
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            gson.toJson(this, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -116,7 +135,7 @@ public class Basket implements Serializable {
      * if user adds the same product to the cart several times, it must be summed up.
      */
     public void addToCart(int productNum, int amount) {
-        clientLog.log(productNum, amount);
+        ClientLog.log(productNum, amount);
 
         if (purchase.containsKey(productNum)) {
             int quantity = purchase.get(productNum) + amount;

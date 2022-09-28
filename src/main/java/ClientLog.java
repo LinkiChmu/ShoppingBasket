@@ -18,7 +18,7 @@ public class ClientLog {
      * Saves a client action to add a purchase to the log;
      * display the note.
      */
-    public void log(int productNum, int amount) {
+    public static void log(int productNum, int amount) {
         LogNote note = new LogNote(productNum, amount);
         activityLog.add(note);
 
