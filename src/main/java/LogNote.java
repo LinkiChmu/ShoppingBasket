@@ -9,7 +9,12 @@ public class LogNote {
     }
 
     public void displayNote() {
-        System.out.println("Товар номер: " + (productNum + 1) + " - " + amount + " шт.");
+        System.out.println("товар номер " + (productNum + 1) + " - " + amount + " шт.");
+    }
+
+    @Override
+    public String toString() {
+        return productNum + "," + amount;
     }
 
     public int getNoteID() {

@@ -48,6 +48,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         int productNum;
         int productCount;
+
         while (true) {
             System.out.println("Введите через пробел номер товара и количество или введите 'end'");
             String input = scanner.nextLine();
@@ -75,6 +76,8 @@ public class Main {
 
        // basket.saveTxt(txtFile);
         basket.saveBin(binFile);
+
+        ClientLog.exportAsCSV(new File("log.csv"));
 
         basket.printCart();
     }

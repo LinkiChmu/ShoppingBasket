@@ -6,6 +6,7 @@ public class Basket implements Serializable {
     private String[] products;
     private double[] prices;
     private Map<Integer, Integer> purchase = new LinkedHashMap<>();
+    private ClientLog clientLog = new ClientLog();
     private static final long serialVersionUID = 29L;
 
     public Basket(String[] products, double[] prices) {
@@ -110,10 +111,13 @@ public class Basket implements Serializable {
     }
 
     /**
+     * Saves note to the client log;
      * Adds a certain quantity of product to the cart;
      * if user adds the same product to the cart several times, it must be summed up.
      */
     public void addToCart(int productNum, int amount) {
+        clientLog.log(productNum, amount);
+
         if (purchase.containsKey(productNum)) {
             int quantity = purchase.get(productNum) + amount;
             purchase.put(productNum, quantity);
