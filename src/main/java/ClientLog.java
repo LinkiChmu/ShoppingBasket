@@ -8,11 +8,18 @@ import java.util.List;
 
 public class ClientLog {
 
-    private String name;
     private static List<LogNote> activityLog = new LinkedList<>();
 
-    public ClientLog() {
-
+    /**
+     * Creates a new client log and adds title line;
+     */
+    public ClientLog (File textfile) {
+        String[] firstStr = {"productNum", "amount"};
+        try(CSVWriter writer = new CSVWriter(new FileWriter(textfile, true))){
+            writer.writeNext(firstStr, false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -30,11 +37,11 @@ public class ClientLog {
      * Writes client log to the CSV file.
      */
     public static void exportAsCSV(File txtFile) {
-        String[] firstStr = {"productNum", "amount"};
-
+//        String[] firstStr = {"productNum", "amount"};
+//
         try (CSVWriter writer = new CSVWriter(new FileWriter(txtFile, true))) {
-
-            writer.writeNext(firstStr, false);
+//
+//            writer.writeNext(firstStr, false);
 
             activityLog.stream()
                     .map(LogNote::toString)

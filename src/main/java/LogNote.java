@@ -1,5 +1,4 @@
 public class LogNote {
-    private int noteID;
     private int productNum;
     private int amount;
 
@@ -17,20 +16,12 @@ public class LogNote {
         return productNum + "," + amount;
     }
 
-    public int getNoteID() {
-        return noteID;
-    }
-
     public int getProductNum() {
         return productNum;
     }
 
     public int getAmount() {
         return amount;
-    }
-
-    public void setNoteID(int noteID) {
-        this.noteID = noteID;
     }
 
     public void setProductNum(int productNum) {

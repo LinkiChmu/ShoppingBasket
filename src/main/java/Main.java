@@ -7,14 +7,14 @@ import java.util.Scanner;
  * 2. Create an object of a product bin or restore previous purchases from the file;
  * 3. Show a list of products available for purchase;
  * 4. Scan product number and its quantity from console input;
- * 5. Store the purchase and the client log;
+ * 5. Store the purchase and the client log, creating the ClientLog if it doesn't exist;
  * 6. Display all purchases, their total cost and quantity
  */
 public class Main {
     public static void main(String[] args) {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
-        String path = "basket.txt";
+        String path = "basket.json";
 
         File basketSource = new File(path);
         Basket basket;
@@ -65,7 +65,11 @@ public class Main {
         }
 
         saveBasket(basket, path, basketSource);
-        ClientLog.exportAsCSV(new File("log.csv"));
+        File log = new File("log.csv");
+        if (!(log.exists())) {
+            new ClientLog(log);
+        }
+        ClientLog.exportAsCSV(log);
 
         basket.printCart();
     }

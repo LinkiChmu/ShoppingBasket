@@ -13,7 +13,8 @@ public class Basket implements Serializable {
     private Map<Integer, Integer> purchase = new LinkedHashMap<>();
     private static final long serialVersionUID = 29L;
 
-    public Basket() {}
+    public Basket() {
+    }
 
     public Basket(String[] products, double[] prices) {
         this.products = products;
@@ -42,7 +43,7 @@ public class Basket implements Serializable {
         Gson gson = builder.create();
         Basket basket = new Basket();
         try (FileReader reader = new FileReader(file)) {
-             basket = gson.fromJson(reader, Basket.class);
+            basket = gson.fromJson(reader, Basket.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
