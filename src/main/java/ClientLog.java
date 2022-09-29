@@ -12,6 +12,7 @@ public class ClientLog {
     private static List<LogNote> activityLog = new LinkedList<>();
 
     public ClientLog() {
+
     }
 
     /**

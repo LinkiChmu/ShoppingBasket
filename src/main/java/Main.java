@@ -1,34 +1,25 @@
 import java.io.File;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 
 /**
- * 1. Create an object of a product bin or restore it from the binary/text file
- * 2. Show a list of products available for purchase;
- * 3. Scan product number and its quantity from console input;
- * 4. Store the purchase;
- * 5. Display all purchases, their total cost and quantity
+ * 1. Enter arrays of products and prices and the path to the file for storing basket;
+ * 2. Create an object of a product bin or restore previous purchases from the file;
+ * 3. Show a list of products available for purchase;
+ * 4. Scan product number and its quantity from console input;
+ * 5. Store the purchase and the client log;
+ * 6. Display all purchases, their total cost and quantity
  */
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
+        String path = "basket.txt";
+
+        File basketSource = new File(path);
         Basket basket;
-
-        // load from text file
-//        File txtFile = new File("basket.txt");
-//        Basket basket;
-//        if (txtFile.exists()) {
-//            basket = Basket.loadFromTxtFile(txtFile);
-//        } else {
-//            basket = new Basket(products, prices);
-//        }
-
-        // load from binary file
-        File binFile = new File("basket.bin");
-        if (binFile.exists()) {
-            basket = Basket.loadFromBinFile(binFile);
+        if (basketSource.exists()) {
+            basket = loadBasket(path, basketSource);
         } else {
             basket = new Basket(products, prices);
         }
@@ -48,7 +39,6 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         int productNum;
         int productCount;
-
         while (true) {
             System.out.println("Введите через пробел номер товара и количество или введите 'end'");
             String input = scanner.nextLine();
@@ -73,12 +63,40 @@ public class Main {
             }
             basket.addToCart(productNum, productCount);
         }
-        //basket.saveTxt(new File("basket.txt"));
-        //basket.saveBin(new File("basket.bin"));
-        basket.saveJson(new File("basket.json"));
 
+        saveBasket(basket, path, basketSource);
         ClientLog.exportAsCSV(new File("log.csv"));
 
         basket.printCart();
+    }
+
+    /**
+     * Loads the basket from the JSON, binary or text file
+     */
+    public static Basket loadBasket(String path, File file) {
+        String[] splitPath = path.split("\\.");
+        String extension = splitPath[1];
+        if ("json".equals(extension)) {
+            return Basket.loadFromJsonFile(file);
+        } else if ("bin".equals(extension)) {
+            return Basket.loadFromBinFile(file);
+        } else {
+            return Basket.loadFromTxtFile(file);
+        }
+    }
+
+    /**
+     * Writes(adds) purchases to the JSON, binary or text file
+     */
+    public static void saveBasket(Basket basket, String path, File file) {
+        String[] splitPath = path.split("\\.");
+        String extension = splitPath[1];
+        if ("json".equals(extension)) {
+            basket.saveJson(file);
+        } else if ("bin".equals(extension)) {
+            basket.saveBin(file);
+        } else {
+            basket.saveTxt(file);
+        }
     }
 }

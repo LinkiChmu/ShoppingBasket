@@ -21,12 +21,12 @@ public class Basket implements Serializable {
     }
 
     /**
-     * Method writes all the Basket object's fields to the JSON file.
+     * Method writes the object Basket to the JSON file using Serialization.
      */
     public void saveJson(File file) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
         try (FileWriter writer = new FileWriter(file)) {
-            GsonBuilder builder = new GsonBuilder();
-            Gson gson = builder.create();
             gson.toJson(this, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -34,9 +34,27 @@ public class Basket implements Serializable {
     }
 
     /**
+     * Restores the object Basket from the JSON file;
+     * displays the restored shopping cart.
+     */
+    protected static Basket loadFromJsonFile(File file) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        Basket basket = new Basket();
+        try (FileReader reader = new FileReader(file)) {
+             basket = gson.fromJson(reader, Basket.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        basket.printCart();
+        System.out.println();
+        return basket;
+    }
+
+    /**
      * Method writes all the Basket object's fields to the text file.
      */
-    public void saveTxt(File file) throws IOException {
+    public void saveTxt(File file) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             for (String product : products) {
                 bw.write(product + " ");
@@ -86,7 +104,7 @@ public class Basket implements Serializable {
      * displays the restored shopping cart.
      */
     protected static Basket loadFromBinFile(File file) {
-        Basket basket = null;
+        Basket basket = new Basket();
         try (ObjectInputStream objIn = new ObjectInputStream(
                 new DataInputStream(new FileInputStream(file)))) {
             basket = (Basket) objIn.readObject();
