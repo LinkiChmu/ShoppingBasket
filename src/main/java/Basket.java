@@ -154,7 +154,6 @@ public class Basket implements Serializable {
      * if user adds the same product to the cart several times, it must be summed up.
      */
     public void addToCart(int productNum, int amount) {
-        ClientLog.log(productNum, amount);
 
         if (purchase.containsKey(productNum)) {
             int quantity = purchase.get(productNum) + amount;

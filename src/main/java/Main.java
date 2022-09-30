@@ -1,25 +1,50 @@
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+import javax.xml.catalog.CatalogFeatures;
+import javax.xml.catalog.CatalogManager;
+import javax.xml.parsers.*;
+import javax.xml.xpath.*;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 
 /**
- * 1. Enter arrays of products and prices and the path to the file for storing basket;
- * 2. Create an object of a product bin or restore previous purchases from the file;
+ * 1. Enter arrays of products and prices, read configure file;
+ * 2. Create an object of a product bin and restore previous purchases from the JSON or text file if configured;
  * 3. Show a list of products available for purchase;
  * 4. Scan product number and its quantity from console input;
- * 5. Store the purchase and the client log, creating the ClientLog if it doesn't exist;
- * 6. Display all purchases, their total cost and quantity
+ * 5. Add the purchase to cart and customer history, creating the object ClientLog if it doesn't exist;
+ * 6. Write the shopping cart into the text or JSON file and the customer history into the CSV file if configured;
+ * 7. Display all purchases, their total cost and quantity.
  */
 public class Main {
-    public static void main(String[] args) {
+
+    private static String loadBasketEnabled;
+    private static String loadBasketPath;
+    private static String loadBasketFormat;
+
+    private static String saveBasketEnabled;
+    private static String saveBasketPath;
+    private static String saveBasketFormat;
+
+    private static String saveLogEnabled;
+    private static String saveLogPath;
+
+
+    public static void main(String[] args) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
-        String path = "basket.json";
+        loadSettings("shop.xml");
 
-        File basketSource = new File(path);
         Basket basket;
-        if (basketSource.exists()) {
-            basket = loadBasket(path, basketSource);
+        if (loadBasketEnabled.equals("true")) {
+            if (loadBasketFormat.equals("json")) {
+                basket = Basket.loadFromJsonFile(new File(loadBasketPath));
+            } else {
+                basket = Basket.loadFromTxtFile(new File(loadBasketPath));
+            }
         } else {
             basket = new Basket(products, prices);
         }
@@ -62,45 +87,45 @@ public class Main {
                 continue;
             }
             basket.addToCart(productNum, productCount);
+            if (!(new File(saveLogPath).exists())) {
+                new ClientLog(saveLogPath);
+            }
+            ClientLog.log(productNum, productCount);
         }
 
-        saveBasket(basket, path, basketSource);
-        File log = new File("log.csv");
-        if (!(log.exists())) {
-            new ClientLog(log);
+        if (saveBasketEnabled.equals("true")) {
+            if (saveBasketFormat.equals("json")) {
+                basket.saveJson(new File(saveBasketPath));
+            } else {
+                basket.saveTxt(new File(saveBasketPath));
+            }
         }
-        ClientLog.exportAsCSV(log);
 
+        if (saveLogEnabled.equals("true")) {
+            ClientLog.exportAsCSV(new File(saveLogPath));
+        }
         basket.printCart();
     }
 
-    /**
-     * Loads the basket from the JSON, binary or text file
-     */
-    public static Basket loadBasket(String path, File file) {
-        String[] splitPath = path.split("\\.");
-        String extension = splitPath[1];
-        if ("json".equals(extension)) {
-            return Basket.loadFromJsonFile(file);
-        } else if ("bin".equals(extension)) {
-            return Basket.loadFromBinFile(file);
-        } else {
-            return Basket.loadFromTxtFile(file);
-        }
-    }
+    private static void loadSettings(String xmlFile) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        builder.setEntityResolver(
+                CatalogManager.catalogResolver(CatalogFeatures.defaults(),
+                        Paths.get(xmlFile).toAbsolutePath().toUri()));
+        Document doc = builder.parse(xmlFile);
 
-    /**
-     * Writes(adds) purchases to the JSON, binary or text file
-     */
-    public static void saveBasket(Basket basket, String path, File file) {
-        String[] splitPath = path.split("\\.");
-        String extension = splitPath[1];
-        if ("json".equals(extension)) {
-            basket.saveJson(file);
-        } else if ("bin".equals(extension)) {
-            basket.saveBin(file);
-        } else {
-            basket.saveTxt(file);
-        }
+        XPathFactory xpfactory = XPathFactory.newInstance();
+        XPath path = xpfactory.newXPath();
+        loadBasketEnabled = path.evaluate("/config/load/enabled/text()", doc);
+        loadBasketPath = path.evaluate("/config/load/fileName/text()", doc);
+        loadBasketFormat = path.evaluate("/config/load/format/text()", doc);
+
+        saveBasketEnabled = path.evaluate("/config/save/enabled/text()", doc);
+        saveBasketPath = path.evaluate("/config/save/fileName/text()", doc);
+        saveBasketFormat = path.evaluate("/config/save/format/text()", doc);
+
+        saveLogEnabled = path.evaluate("/config/log/enabled/text()", doc);
+        saveLogPath = path.evaluate("/config/log/fileName/text()", doc);
     }
 }

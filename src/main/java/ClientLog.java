@@ -13,9 +13,9 @@ public class ClientLog {
     /**
      * Creates a new client log and adds title line;
      */
-    public ClientLog (File textfile) {
+    public ClientLog (String fileSaveLog) {
         String[] firstStr = {"productNum", "amount"};
-        try(CSVWriter writer = new CSVWriter(new FileWriter(textfile, true))){
+        try(CSVWriter writer = new CSVWriter(new FileWriter(fileSaveLog, true))){
             writer.writeNext(firstStr, false);
         } catch (IOException e) {
             e.printStackTrace();
@@ -37,12 +37,7 @@ public class ClientLog {
      * Writes client log to the CSV file.
      */
     public static void exportAsCSV(File txtFile) {
-//        String[] firstStr = {"productNum", "amount"};
-//
         try (CSVWriter writer = new CSVWriter(new FileWriter(txtFile, true))) {
-//
-//            writer.writeNext(firstStr, false);
-
             activityLog.stream()
                     .map(LogNote::toString)
                     .map(str -> str.split(","))
