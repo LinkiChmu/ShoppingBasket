@@ -1,6 +1,11 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.*;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Basket implements Serializable {
     private String[] products;
@@ -8,15 +13,49 @@ public class Basket implements Serializable {
     private Map<Integer, Integer> purchase = new LinkedHashMap<>();
     private static final long serialVersionUID = 29L;
 
+    public Basket() {
+    }
+
     public Basket(String[] products, double[] prices) {
         this.products = products;
         this.prices = prices;
     }
 
     /**
+     * Method writes the object Basket to the JSON file using Serialization.
+     */
+    public void saveJson(File file) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        try (FileWriter writer = new FileWriter(file)) {
+            gson.toJson(this, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Restores the object Basket from the JSON file;
+     * displays the restored shopping cart.
+     */
+    protected static Basket loadFromJsonFile(File file) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        Basket basket = new Basket();
+        try (FileReader reader = new FileReader(file)) {
+            basket = gson.fromJson(reader, Basket.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        basket.printCart();
+        System.out.println();
+        return basket;
+    }
+
+    /**
      * Method writes all the Basket object's fields to the text file.
      */
-    public void saveTxt(File file) throws IOException {
+    public void saveTxt(File file) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             for (String product : products) {
                 bw.write(product + " ");
@@ -66,7 +105,7 @@ public class Basket implements Serializable {
      * displays the restored shopping cart.
      */
     protected static Basket loadFromBinFile(File file) {
-        Basket basket = null;
+        Basket basket = new Basket();
         try (ObjectInputStream objIn = new ObjectInputStream(
                 new DataInputStream(new FileInputStream(file)))) {
             basket = (Basket) objIn.readObject();
@@ -110,10 +149,12 @@ public class Basket implements Serializable {
     }
 
     /**
+     * Saves note to the client log;
      * Adds a certain quantity of product to the cart;
      * if user adds the same product to the cart several times, it must be summed up.
      */
     public void addToCart(int productNum, int amount) {
+
         if (purchase.containsKey(productNum)) {
             int quantity = purchase.get(productNum) + amount;
             purchase.put(productNum, quantity);
