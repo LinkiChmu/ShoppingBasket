@@ -7,13 +7,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ClientLog {
+    private List<LogNote> activityLog;
 
-    private static List<LogNote> activityLog = new LinkedList<>();
+    public ClientLog() {
+        activityLog = new LinkedList<>();
+    }
 
     /**
-     * Creates a new client log and adds title line;
+     * Adds title line to the ClientLog;
      */
-    public ClientLog (String fileSaveLog) {
+    public void firstLog (String fileSaveLog) {
         String[] firstStr = {"productNum", "amount"};
         try(CSVWriter writer = new CSVWriter(new FileWriter(fileSaveLog, true))){
             writer.writeNext(firstStr, false);
@@ -23,10 +26,10 @@ public class ClientLog {
     }
 
     /**
-     * Saves a client action to add a purchase to the log;
+     * Saves a client action to the log;
      * display the note.
      */
-    public static void log(int productNum, int amount) {
+    public void log(int productNum, int amount) {
         LogNote note = new LogNote(productNum, amount);
         activityLog.add(note);
 
@@ -36,7 +39,7 @@ public class ClientLog {
     /**
      * Writes client log to the CSV file.
      */
-    public static void exportAsCSV(File txtFile) {
+    public void exportAsCSV(File txtFile) {
         try (CSVWriter writer = new CSVWriter(new FileWriter(txtFile, true))) {
             activityLog.stream()
                     .map(LogNote::toString)
