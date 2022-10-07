@@ -13,9 +13,6 @@ public class Basket implements Serializable {
     private Map<Integer, Integer> purchase;
     private static final long serialVersionUID = 29L;
 
-    public Basket() {
-    }
-
     public Basket(String[] products, double[] prices) {
         this.products = products;
         this.prices = prices;
@@ -26,27 +23,20 @@ public class Basket implements Serializable {
      * Method writes the object Basket to the JSON file using Serialization.
      */
     public void saveJson(File file) throws IOException {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
         try (FileWriter writer = new FileWriter(file)) {
+            Gson gson = new Gson();
             gson.toJson(this, writer);
         }
     }
 
     /**
      * Restores the object Basket from the JSON file;
-     * displays the restored shopping cart.
      */
     public static Basket loadFromJsonFile(File file) throws IOException {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        Basket basket = new Basket();
         try (FileReader reader = new FileReader(file)) {
-            basket = gson.fromJson(reader, Basket.class);
+            Gson gson = new Gson();
+            return gson.fromJson(reader, Basket.class);
         }
-        basket.printCart();
-        System.out.println();
-        return basket;
     }
 
     /**
@@ -87,37 +77,31 @@ public class Basket implements Serializable {
      * Method stores the object Basket into the binary file by serialization.
      */
     public void saveBin(File file) throws IOException {
-        try (ObjectOutputStream objOut = new ObjectOutputStream(
+        try (ObjectOutputStream out = new ObjectOutputStream(
                 new DataOutputStream(new FileOutputStream(file)))) {
-            objOut.writeObject(this);
+            out.writeObject(this);
         }
     }
 
     /**
      * Restores object Basket from the binary file by deserialization;
-     * displays the restored shopping cart.
      */
     public static Basket loadFromBinFile(File file) throws IOException, ClassNotFoundException {
-        Basket basket = new Basket();
         try (ObjectInputStream objIn = new ObjectInputStream(
                 new DataInputStream(new FileInputStream(file)))) {
-            basket = (Basket) objIn.readObject();
+            return (Basket) objIn.readObject();
         }
-        basket.printCart();
-        System.out.println();
-        return basket;
     }
 
     /**
      * Restores the shopping list from a text file;
-     * displays the restored cart.
      */
     public static Basket loadFromTxtFile(File file) throws IOException {
-        Basket basket = null;
+        Basket basket;
         // read the products array
         try (BufferedReader buf = new BufferedReader(new FileReader(file))) {
             String str = buf.readLine();
-            String[] readProducts = str.split("(?U)\\W+");
+            String[] readProducts = str.trim().split("(?U)\\W+");
             // make a new object
             basket = new Basket(readProducts, new double[readProducts.length]);
             // read the prices array
@@ -132,8 +116,6 @@ public class Basket implements Serializable {
                 basket.purchase.put(Integer.parseInt(read[0]), Integer.parseInt(read[1]));
             }
         }
-        basket.printCart();
-        System.out.println();
         return basket;
     }
 
@@ -181,5 +163,6 @@ public class Basket implements Serializable {
         sb.append(df.format(totalSum));
         sb.append(" руб");
         System.out.println(sb);
+        System.out.println();
     }
 }

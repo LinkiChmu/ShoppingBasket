@@ -48,6 +48,7 @@ public class Main {
         } else {
             basket = new Basket(products, prices);
         }
+        basket.printCart();
 
         StringBuilder sb1 = new StringBuilder("Список товаров, доступных для покупки: \n");
         DecimalFormat dfm = new DecimalFormat("0.00");
