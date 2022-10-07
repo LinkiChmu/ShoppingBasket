@@ -8,9 +8,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Basket implements Serializable {
-    private String[] products;
-    private double[] prices;
-    private Map<Integer, Integer> purchase;
+    protected String[] products;
+    protected double[] prices;
+    protected Map<Integer, Integer> purchase;
     private static final long serialVersionUID = 29L;
 
     public Basket(String[] products, double[] prices) {
@@ -164,5 +164,20 @@ public class Basket implements Serializable {
         sb.append(" руб");
         System.out.println(sb);
         System.out.println();
+    }
+
+    public void printProducts() {
+        StringBuilder sb1 = new StringBuilder("Список товаров, доступных для покупки: \n");
+        DecimalFormat dfm = new DecimalFormat("0.00");
+        for (int i = 0; i < products.length; i++) {
+            sb1.append(i + 1);
+            sb1.append(". ");
+            sb1.append(products[i]);
+            sb1.append(" ");
+            sb1.append(dfm.format(prices[i]));
+            sb1.append(" руб/шт\n");
+        }
+        System.out.println(sb1);
+
     }
 }

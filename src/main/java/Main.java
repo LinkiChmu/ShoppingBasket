@@ -11,7 +11,7 @@ import java.text.DecimalFormat;
 import java.util.Scanner;
 
 /**
- * 1. Enter arrays of products and prices, read configure file;
+ * 1. Entered arrays of products and prices, load settings from the configure file;
  * 2. Create an object of a product bin and restore previous purchases from the JSON or text file if configured;
  * 3. Show a list of products available for purchase;
  * 4. Scan product number and its quantity from console input;
@@ -21,51 +21,29 @@ import java.util.Scanner;
  */
 public class Main {
 
-    private static String loadBasketEnabled;
-    private static String loadBasketPath;
-    private static String loadBasketFormat;
-
-    private static String saveBasketEnabled;
-    private static String saveBasketPath;
-    private static String saveBasketFormat;
-
-    private static String saveLogEnabled;
-    private static String saveLogPath;
-
-
     public static void main(String[] args) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
-        loadSettings("shop.xml");
+        Config config = new Config();
+        config.loadSettings("shop.xml");
+        ClientLog clientLog = new ClientLog();
+        if (!(new File(config.saveLogPath).exists())) {
+            clientLog.firstLog(config.saveLogPath);
+        }
 
-        Basket basket;
-        if (loadBasketEnabled.equals("true")) {
-            if (loadBasketFormat.equals("json")) {
-                basket = Basket.loadFromJsonFile(new File(loadBasketPath));
-            } else {
-                basket = Basket.loadFromTxtFile(new File(loadBasketPath));
-            }
-        } else {
+
+        Basket basket = config.loadBasket();
+        if (basket == null) {
             basket = new Basket(products, prices);
+        } else {
+            basket.printCart();
         }
-        basket.printCart();
 
-        StringBuilder sb1 = new StringBuilder("Список товаров, доступных для покупки: \n");
-        DecimalFormat dfm = new DecimalFormat("0.00");
-        for (int i = 0; i < products.length; i++) {
-            sb1.append(i + 1);
-            sb1.append(". ");
-            sb1.append(products[i]);
-            sb1.append(" ");
-            sb1.append(dfm.format(prices[i]));
-            sb1.append(" руб/шт\n");
-        }
-        System.out.println(sb1);
+        basket.printProducts();
 
         Scanner scanner = new Scanner(System.in);
         int productNum;
         int productCount;
-        ClientLog clientLog = new ClientLog();
 
         while (true) {
             System.out.println("Введите через пробел номер товара и количество или введите 'end'");
@@ -73,7 +51,7 @@ public class Main {
             if ("end".equals(input)) {
                 break;
             }
-            String[] parts = input.split("(?U)\\W+");
+            String[] parts = input.trim().split(" ");
             if (parts.length != 2) {
                 System.out.println("Некорректный ввод данных");
                 continue;
@@ -91,45 +69,11 @@ public class Main {
             }
             basket.addToCart(productNum, productCount);
 
-            if (!(new File(saveLogPath).exists())) {
-                clientLog.firstLog(saveLogPath);
-            }
             clientLog.log(productNum, productCount);
         }
-
-        if (saveBasketEnabled.equals("true")) {
-            if (saveBasketFormat.equals("json")) {
-                basket.saveJson(new File(saveBasketPath));
-            } else {
-                basket.saveTxt(new File(saveBasketPath));
-            }
-        }
-
-        if (saveLogEnabled.equals("true")) {
-            clientLog.exportAsCSV(new File(saveLogPath));
-        }
+        config.saveBasket(basket);
+        config.saveLog(clientLog);
         basket.printCart();
     }
 
-    private static void loadSettings(String xmlFile) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        builder.setEntityResolver(
-                CatalogManager.catalogResolver(CatalogFeatures.defaults(),
-                        Paths.get(xmlFile).toAbsolutePath().toUri()));
-        Document doc = builder.parse(xmlFile);
-
-        XPathFactory xpFactory = XPathFactory.newInstance();
-        XPath path = xpFactory.newXPath();
-        loadBasketEnabled = path.evaluate("/config/load/enabled/text()", doc);
-        loadBasketPath = path.evaluate("/config/load/fileName/text()", doc);
-        loadBasketFormat = path.evaluate("/config/load/format/text()", doc);
-
-        saveBasketEnabled = path.evaluate("/config/save/enabled/text()", doc);
-        saveBasketPath = path.evaluate("/config/save/fileName/text()", doc);
-        saveBasketFormat = path.evaluate("/config/save/format/text()", doc);
-
-        saveLogEnabled = path.evaluate("/config/log/enabled/text()", doc);
-        saveLogPath = path.evaluate("/config/log/fileName/text()", doc);
-    }
 }
