@@ -10,7 +10,7 @@ import java.util.Map;
 public class Basket implements Serializable {
     private String[] products;
     private double[] prices;
-    private Map<Integer, Integer> purchase = new LinkedHashMap<>();
+    private Map<Integer, Integer> purchase;
     private static final long serialVersionUID = 29L;
 
     public Basket() {
@@ -19,18 +19,17 @@ public class Basket implements Serializable {
     public Basket(String[] products, double[] prices) {
         this.products = products;
         this.prices = prices;
+        purchase = new LinkedHashMap<>();
     }
 
     /**
      * Method writes the object Basket to the JSON file using Serialization.
      */
-    public void saveJson(File file) {
+    public void saveJson(File file) throws IOException {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         try (FileWriter writer = new FileWriter(file)) {
             gson.toJson(this, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -38,14 +37,12 @@ public class Basket implements Serializable {
      * Restores the object Basket from the JSON file;
      * displays the restored shopping cart.
      */
-    protected static Basket loadFromJsonFile(File file) {
+    public static Basket loadFromJsonFile(File file) throws IOException {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         Basket basket = new Basket();
         try (FileReader reader = new FileReader(file)) {
             basket = gson.fromJson(reader, Basket.class);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         basket.printCart();
         System.out.println();
@@ -55,7 +52,7 @@ public class Basket implements Serializable {
     /**
      * Method writes all the Basket object's fields to the text file.
      */
-    public void saveTxt(File file) {
+    public void saveTxt(File file) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             for (String product : products) {
                 bw.write(product + " ");
@@ -83,20 +80,16 @@ public class Basket implements Serializable {
                             throw new RuntimeException(e);
                         }
                     });
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
         }
     }
 
     /**
      * Method stores the object Basket into the binary file by serialization.
      */
-    protected void saveBin(File file) {
+    public void saveBin(File file) throws IOException {
         try (ObjectOutputStream objOut = new ObjectOutputStream(
                 new DataOutputStream(new FileOutputStream(file)))) {
             objOut.writeObject(this);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
         }
     }
 
@@ -104,13 +97,11 @@ public class Basket implements Serializable {
      * Restores object Basket from the binary file by deserialization;
      * displays the restored shopping cart.
      */
-    protected static Basket loadFromBinFile(File file) {
+    public static Basket loadFromBinFile(File file) throws IOException, ClassNotFoundException {
         Basket basket = new Basket();
         try (ObjectInputStream objIn = new ObjectInputStream(
                 new DataInputStream(new FileInputStream(file)))) {
             basket = (Basket) objIn.readObject();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
         basket.printCart();
         System.out.println();
@@ -121,7 +112,7 @@ public class Basket implements Serializable {
      * Restores the shopping list from a text file;
      * displays the restored cart.
      */
-    public static Basket loadFromTxtFile(File file) {
+    public static Basket loadFromTxtFile(File file) throws IOException {
         Basket basket = null;
         // read the products array
         try (BufferedReader buf = new BufferedReader(new FileReader(file))) {
@@ -140,8 +131,6 @@ public class Basket implements Serializable {
                 String[] read = s.split("(?U)\\W+");
                 basket.purchase.put(Integer.parseInt(read[0]), Integer.parseInt(read[1]));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         basket.printCart();
         System.out.println();
