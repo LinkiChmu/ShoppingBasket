@@ -12,15 +12,15 @@ import java.nio.file.Paths;
 
 public class Config {
 
-    protected String loadBasketEnabled;
+    protected boolean loadBasketEnabled;
     protected String loadBasketPath;
     protected String loadBasketFormat;
 
-    protected String saveBasketEnabled;
+    protected boolean saveBasketEnabled;
     protected String saveBasketPath;
     protected String saveBasketFormat;
 
-    protected String saveLogEnabled;
+    protected boolean saveLogEnabled;
     protected String saveLogPath;
 
     public void loadSettings(String xmlFile) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
@@ -32,21 +32,21 @@ public class Config {
 
         XPathFactory xpFactory = XPathFactory.newInstance();
         XPath path = xpFactory.newXPath();
-        loadBasketEnabled = path.evaluate("/config/load/enabled/text()", doc);
+        loadBasketEnabled = Boolean.parseBoolean(path.evaluate("/config/load/enabled/text()", doc));
         loadBasketPath = path.evaluate("/config/load/fileName/text()", doc);
         loadBasketFormat = path.evaluate("/config/load/format/text()", doc);
 
-        saveBasketEnabled = path.evaluate("/config/save/enabled/text()", doc);
+        saveBasketEnabled = Boolean.parseBoolean(path.evaluate("/config/save/enabled/text()", doc));
         saveBasketPath = path.evaluate("/config/save/fileName/text()", doc);
         saveBasketFormat = path.evaluate("/config/save/format/text()", doc);
 
-        saveLogEnabled = path.evaluate("/config/log/enabled/text()", doc);
+        saveLogEnabled = Boolean.parseBoolean(path.evaluate("/config/log/enabled/text()", doc));
         saveLogPath = path.evaluate("/config/log/fileName/text()", doc);
     }
 
     public Basket loadBasket() throws IOException {
         Basket basket = null;
-        if (loadBasketEnabled.equals("true")) {
+        if (loadBasketEnabled) {
             if (loadBasketFormat.equals("json")) {
                 basket = Basket.loadFromJsonFile(new File(loadBasketPath));
             } else {
@@ -57,7 +57,7 @@ public class Config {
     }
 
     public void saveBasket(Basket basket) throws IOException {
-        if (saveBasketEnabled.equals("true")) {
+        if (saveBasketEnabled) {
             if (saveBasketFormat.equals("json")) {
                 basket.saveJson(new File(saveBasketPath));
             } else {
@@ -67,7 +67,7 @@ public class Config {
     }
 
     public void saveLog(ClientLog clientLog) throws IOException {
-        if (saveLogEnabled.equals("true")) {
+        if (saveLogEnabled) {
             exportAsCSV(clientLog, new File(saveLogPath));
         }
     }
