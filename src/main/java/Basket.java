@@ -1,5 +1,4 @@
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.text.DecimalFormat;
@@ -49,16 +48,9 @@ public class Basket implements Serializable {
             }
             bw.write("\n");
 
-            Arrays.stream(prices)
-                    .boxed()
-                    .map(price -> price + " ")
-                    .forEach(str -> {
-                        try {
-                            bw.write(str);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+            for (double price : prices) {
+                bw.write(price + " ");
+            }
             bw.write("\n");
 
             purchase.entrySet().stream()
@@ -87,9 +79,9 @@ public class Basket implements Serializable {
      * Restores object Basket from the binary file by deserialization;
      */
     public static Basket loadFromBinFile(File file) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream objIn = new ObjectInputStream(
+        try (ObjectInputStream in = new ObjectInputStream(
                 new DataInputStream(new FileInputStream(file)))) {
-            return (Basket) objIn.readObject();
+            return (Basket) in.readObject();
         }
     }
 
@@ -97,26 +89,20 @@ public class Basket implements Serializable {
      * Restores the shopping list from a text file;
      */
     public static Basket loadFromTxtFile(File file) throws IOException {
-        Basket basket;
-        // read the products array
         try (BufferedReader buf = new BufferedReader(new FileReader(file))) {
-            String str = buf.readLine();
-            String[] readProducts = str.trim().split("(?U)\\W+");
-            // make a new object
-            basket = new Basket(readProducts, new double[readProducts.length]);
-            // read the prices array
-            String[] readPrices = buf.readLine().split(" ");
-            for (int i = 0; i < readPrices.length; i++) {
-                basket.prices[i] = Double.parseDouble(readPrices[i]);
-            }
+            String[] products = buf.readLine().trim().split(" ");
+            double[] prices = Arrays.stream(buf.readLine().trim().split(" "))
+                    .mapToDouble(Double::parseDouble)
+                    .toArray();
+            Basket basket = new Basket(products, prices);
             // read the map of purchases
             String s;
             while ((s = buf.readLine()) != null) {
                 String[] read = s.split("(?U)\\W+");
                 basket.purchase.put(Integer.parseInt(read[0]), Integer.parseInt(read[1]));
             }
+            return basket;
         }
-        return basket;
     }
 
     /**
@@ -125,7 +111,6 @@ public class Basket implements Serializable {
      * if user adds the same product to the cart several times, it must be summed up.
      */
     public void addToCart(int productNum, int amount) {
-
         if (purchase.containsKey(productNum)) {
             int quantity = purchase.get(productNum) + amount;
             purchase.put(productNum, quantity);

@@ -45,15 +45,14 @@ public class Config {
     }
 
     public Basket loadBasket() throws IOException {
-        Basket basket = null;
         if (loadBasketEnabled) {
             if (loadBasketFormat.equals("json")) {
-                basket = Basket.loadFromJsonFile(new File(loadBasketPath));
+                return Basket.loadFromJsonFile(new File(loadBasketPath));
             } else {
-                basket = Basket.loadFromTxtFile(new File(loadBasketPath));
+                return Basket.loadFromTxtFile(new File(loadBasketPath));
             }
         }
-        return basket;
+        return null;
     }
 
     public void saveBasket(Basket basket) throws IOException {

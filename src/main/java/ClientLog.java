@@ -11,7 +11,6 @@ public class ClientLog {
 
     public ClientLog() {
         activityLog = new LinkedList<>();
-
     }
 
     /**

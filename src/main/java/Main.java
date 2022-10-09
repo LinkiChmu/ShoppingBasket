@@ -15,7 +15,7 @@ import java.util.Scanner;
  * 2. Create an object of a product bin and restore previous purchases from the JSON or text file if configured;
  * 3. Show a list of products available for purchase;
  * 4. Scan product number and its quantity from console input;
- * 5. Add the purchase to cart and customer history, writing the first line into the ClientLog if it doesn't exist;
+ * 5. Add the purchase to cart and customer history;
  * 6. Write the shopping cart into the text or JSON file and the customer history into the CSV file if configured;
  * 7. Display all purchases, their total cost and quantity.
  */
@@ -30,8 +30,6 @@ public class Main {
         if (!(new File(config.saveLogPath).exists())) {
             clientLog.firstLog(config.saveLogPath);
         }
-
-
         Basket basket = config.loadBasket();
         if (basket == null) {
             basket = new Basket(products, prices);
@@ -68,12 +66,11 @@ public class Main {
                 continue;
             }
             basket.addToCart(productNum, productCount);
-
             clientLog.log(productNum, productCount);
         }
+
         config.saveBasket(basket);
         config.saveLog(clientLog);
         basket.printCart();
     }
-
 }
