@@ -1,8 +1,8 @@
-public class LogNote {
+public class Note {
     private int productNum;
     private int amount;
 
-    public LogNote(int productNum, int amount) {
+    public Note(int productNum, int amount) {
         this.productNum = productNum;
         this.amount = amount;
     }

@@ -1,5 +1,4 @@
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.text.DecimalFormat;
@@ -8,70 +7,50 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Basket implements Serializable {
-    private String[] products;
-    private double[] prices;
-    private Map<Integer, Integer> purchase = new LinkedHashMap<>();
+    protected String[] products;
+    protected double[] prices;
+    protected Map<Integer, Integer> purchase;
     private static final long serialVersionUID = 29L;
-
-    public Basket() {
-    }
 
     public Basket(String[] products, double[] prices) {
         this.products = products;
         this.prices = prices;
+        purchase = new LinkedHashMap<>();
     }
 
     /**
      * Method writes the object Basket to the JSON file using Serialization.
      */
-    public void saveJson(File file) {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
+    public void saveJson(File file) throws IOException {
         try (FileWriter writer = new FileWriter(file)) {
+            Gson gson = new Gson();
             gson.toJson(this, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
     /**
      * Restores the object Basket from the JSON file;
-     * displays the restored shopping cart.
      */
-    protected static Basket loadFromJsonFile(File file) {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        Basket basket = new Basket();
+    public static Basket loadFromJsonFile(File file) throws IOException {
         try (FileReader reader = new FileReader(file)) {
-            basket = gson.fromJson(reader, Basket.class);
-        } catch (IOException e) {
-            e.printStackTrace();
+            Gson gson = new Gson();
+            return gson.fromJson(reader, Basket.class);
         }
-        basket.printCart();
-        System.out.println();
-        return basket;
     }
 
     /**
      * Method writes all the Basket object's fields to the text file.
      */
-    public void saveTxt(File file) {
+    public void saveTxt(File file) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             for (String product : products) {
                 bw.write(product + " ");
             }
             bw.write("\n");
 
-            Arrays.stream(prices)
-                    .boxed()
-                    .map(price -> price + " ")
-                    .forEach(str -> {
-                        try {
-                            bw.write(str);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+            for (double price : prices) {
+                bw.write(price + " ");
+            }
             bw.write("\n");
 
             purchase.entrySet().stream()
@@ -83,69 +62,47 @@ public class Basket implements Serializable {
                             throw new RuntimeException(e);
                         }
                     });
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
         }
     }
 
     /**
      * Method stores the object Basket into the binary file by serialization.
      */
-    protected void saveBin(File file) {
-        try (ObjectOutputStream objOut = new ObjectOutputStream(
+    public void saveBin(File file) throws IOException {
+        try (ObjectOutputStream out = new ObjectOutputStream(
                 new DataOutputStream(new FileOutputStream(file)))) {
-            objOut.writeObject(this);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+            out.writeObject(this);
         }
     }
 
     /**
      * Restores object Basket from the binary file by deserialization;
-     * displays the restored shopping cart.
      */
-    protected static Basket loadFromBinFile(File file) {
-        Basket basket = new Basket();
-        try (ObjectInputStream objIn = new ObjectInputStream(
+    public static Basket loadFromBinFile(File file) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream in = new ObjectInputStream(
                 new DataInputStream(new FileInputStream(file)))) {
-            basket = (Basket) objIn.readObject();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            return (Basket) in.readObject();
         }
-        basket.printCart();
-        System.out.println();
-        return basket;
     }
 
     /**
      * Restores the shopping list from a text file;
-     * displays the restored cart.
      */
-    public static Basket loadFromTxtFile(File file) {
-        Basket basket = null;
-        // read the products array
+    public static Basket loadFromTxtFile(File file) throws IOException {
         try (BufferedReader buf = new BufferedReader(new FileReader(file))) {
-            String str = buf.readLine();
-            String[] readProducts = str.split("(?U)\\W+");
-            // make a new object
-            basket = new Basket(readProducts, new double[readProducts.length]);
-            // read the prices array
-            String[] readPrices = buf.readLine().split(" ");
-            for (int i = 0; i < readPrices.length; i++) {
-                basket.prices[i] = Double.parseDouble(readPrices[i]);
-            }
+            String[] products = buf.readLine().trim().split(" ");
+            double[] prices = Arrays.stream(buf.readLine().trim().split(" "))
+                    .mapToDouble(Double::parseDouble)
+                    .toArray();
+            Basket basket = new Basket(products, prices);
             // read the map of purchases
             String s;
             while ((s = buf.readLine()) != null) {
                 String[] read = s.split("(?U)\\W+");
                 basket.purchase.put(Integer.parseInt(read[0]), Integer.parseInt(read[1]));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            return basket;
         }
-        basket.printCart();
-        System.out.println();
-        return basket;
     }
 
     /**
@@ -154,7 +111,6 @@ public class Basket implements Serializable {
      * if user adds the same product to the cart several times, it must be summed up.
      */
     public void addToCart(int productNum, int amount) {
-
         if (purchase.containsKey(productNum)) {
             int quantity = purchase.get(productNum) + amount;
             purchase.put(productNum, quantity);
@@ -192,5 +148,21 @@ public class Basket implements Serializable {
         sb.append(df.format(totalSum));
         sb.append(" руб");
         System.out.println(sb);
+        System.out.println();
+    }
+
+    public void printProducts() {
+        StringBuilder sb1 = new StringBuilder("Список товаров, доступных для покупки: \n");
+        DecimalFormat dfm = new DecimalFormat("0.00");
+        for (int i = 0; i < products.length; i++) {
+            sb1.append(i + 1);
+            sb1.append(". ");
+            sb1.append(products[i]);
+            sb1.append(" ");
+            sb1.append(dfm.format(prices[i]));
+            sb1.append(" руб/шт\n");
+        }
+        System.out.println(sb1);
+
     }
 }
