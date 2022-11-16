@@ -1,29 +1,16 @@
-import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-import javax.xml.catalog.CatalogFeatures;
-import javax.xml.catalog.CatalogManager;
 import javax.xml.parsers.*;
 import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
 import java.util.Scanner;
 
-/**
- * 1. Entered arrays of products and prices, load settings from the configure file;
- * 2. Create an object of a product bin and restore previous purchases from the JSON or text file if configured;
- * 3. Show a list of products available for purchase;
- * 4. Scan product number and its quantity from console input;
- * 5. Add the purchase to cart and customer history;
- * 6. Write the shopping cart into the text or JSON file and the customer history into the CSV file if configured;
- * 7. Display all purchases, their total cost and quantity.
- */
 public class Main {
 
     public static void main(String[] args) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
         String[] products = {"Молоко", "Хлеб", "Яблоки", "Сыр"};
         double[] prices = {100.00, 75.00, 110.00, 800.50};
+
         Config config = new Config();
         config.loadSettings("shop.xml");
         ClientLog clientLog = new ClientLog();

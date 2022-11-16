@@ -16,9 +16,9 @@ public class ClientLog {
     /**
      * Adds title line to the ClientLog;
      */
-    public void firstLog (String fileSaveLog) throws IOException {
+    public void firstLog(String fileSaveLog) throws IOException {
         String[] firstStr = {"productNum", "amount"};
-        try(CSVWriter writer = new CSVWriter(new FileWriter(fileSaveLog, true))){
+        try (CSVWriter writer = new CSVWriter(new FileWriter(fileSaveLog, true))) {
             writer.writeNext(firstStr, false);
         }
     }
@@ -34,4 +34,15 @@ public class ClientLog {
         note.displayNote();
     }
 
+    /**
+     * Writes client log to the CSV file.
+     */
+    public void exportAsCSV(File txtFile) throws IOException {
+        try (CSVWriter writer = new CSVWriter(new FileWriter(txtFile, true))) {
+            activityLog.stream()
+                    .map(Note::toString)
+                    .map(str -> str.split(","))
+                    .forEach(arr -> writer.writeNext(arr, false));
+        }
+    }
 }

@@ -1,4 +1,3 @@
-import com.opencsv.CSVWriter;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -6,7 +5,6 @@ import javax.xml.catalog.*;
 import javax.xml.parsers.*;
 import javax.xml.xpath.*;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -67,20 +65,7 @@ public class Config {
 
     public void saveLog(ClientLog clientLog) throws IOException {
         if (saveLogEnabled) {
-            exportAsCSV(clientLog, new File(saveLogPath));
+            clientLog.exportAsCSV(new File(saveLogPath));
         }
     }
-
-    /**
-     * Writes client log to the CSV file.
-     */
-    public void exportAsCSV(ClientLog clientLog, File txtFile) throws IOException  {
-        try (CSVWriter writer = new CSVWriter(new FileWriter(txtFile, true))) {
-            clientLog.activityLog.stream()
-                    .map(Note::toString)
-                    .map(str -> str.split(","))
-                    .forEach(arr -> writer.writeNext(arr, false));
-        }
-    }
-
 }

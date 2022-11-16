@@ -3,7 +3,7 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Basket implements Serializable {
@@ -15,7 +15,7 @@ public class Basket implements Serializable {
     public Basket(String[] products, double[] prices) {
         this.products = products;
         this.prices = prices;
-        purchase = new LinkedHashMap<>();
+        purchase = new HashMap<>(prices.length);
     }
 
     /**
